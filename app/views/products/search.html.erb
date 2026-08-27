@@ -1,0 +1,21 @@
+<% content_for :title, "Search" %>
+
+<section class="wrap section">
+  <nav class="crumbs"><%= link_to "Store", root_path %> <span>/</span> Search</nav>
+  <div class="section-head">
+    <h1><%= @query.presence ? "Results for “#{@query}”" : "Search" %></h1>
+    <p><%= @products.size %> <%= "match".pluralize(@products.size) %></p>
+  </div>
+
+  <% if @products.empty? %>
+    <div class="empty">
+      <p>Nothing matched that.</p>
+      <p class="muted">Try “brisket”, “oak”, “vinegar” or “thermometer”.</p>
+      <%= link_to "Back to the store", root_path, class: "btn btn-primary" %>
+    </div>
+  <% else %>
+    <div class="grid">
+      <%= render partial: "shared/product_card", collection: @products, as: :product %>
+    </div>
+  <% end %>
+</section>

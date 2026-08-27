@@ -1,0 +1,22 @@
+<article class="card">
+  <%= link_to product_path(product.slug), class: "card-art" do %>
+    <%= product_art(product, size: 400) %>
+    <div class="card-badges"><%= badge_tags(product) %></div>
+  <% end %>
+  <div class="card-body">
+    <h3><%= link_to product.name, product_path(product.slug) %></h3>
+    <p class="card-summary"><%= product.summary %></p>
+    <div class="card-rating"><%= rating_stars(product.average_rating) %></div>
+    <div class="card-foot">
+      <span class="price"><%= money(product.price_cents) %></span>
+      <%= heat_meter(product.heat) %>
+    </div>
+    <% if product.in_stock? %>
+      <%= button_to "Add to cart", cart_add_path,
+            params: { slug: product.slug, quantity: 1, return_to: request.fullpath },
+            class: "btn btn-add" %>
+    <% else %>
+      <button class="btn btn-add" disabled>Sold out</button>
+    <% end %>
+  </div>
+</article>

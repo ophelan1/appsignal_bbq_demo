@@ -1,0 +1,26 @@
+<% content_for :title, "Slow query" %>
+<section class="wrap section">
+  <nav class="crumbs"><%= link_to "Demos", demo_path %> <span>/</span> Slow query</nav>
+  <div class="section-head">
+    <h1>Slow query complete</h1>
+    <p>That request ran a correlated subquery per row over a cross join, then slept for 350ms.</p>
+  </div>
+  <div class="demo-result">
+    <p><strong><%= @rows.size %></strong> rows returned. Now open Performance in AppSignal —
+       this action should be at or near the top of the slowest list.</p>
+  </div>
+  <table class="orders-table">
+    <thead><tr><th>Product</th><th>Reviews</th><th>Avg rating</th><th>Times ordered</th></tr></thead>
+    <tbody>
+      <% @rows.first(10).each do |row| %>
+        <tr>
+          <td><%= row.name %></td>
+          <td><%= row.review_count %></td>
+          <td><%= row.avg_rating&.round(1) || "—" %></td>
+          <td><%= row.times_ordered %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <p><%= link_to "Back to demos", demo_path, class: "btn btn-ghost" %></p>
+</section>

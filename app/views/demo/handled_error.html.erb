@@ -1,0 +1,11 @@
+<% content_for :title, "Handled error" %>
+<section class="wrap section">
+  <nav class="crumbs"><%= link_to "Demos", demo_path %> <span>/</span> Handled error</nav>
+  <div class="section-head"><h1>Handled, reported, carried on</h1></div>
+  <div class="demo-result">
+    <p><%= @message %></p>
+    <p class="muted">The request returned 200. In AppSignal the error appears in Errors with the
+      tags and custom data attached, but no user ever saw a 500 page.</p>
+  </div>
+  <p><%= link_to "Back to demos", demo_path, class: "btn btn-ghost" %></p>
+</section>

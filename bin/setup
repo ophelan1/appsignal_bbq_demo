@@ -1,0 +1,30 @@
+#!/usr/bin/env ruby
+require "fileutils"
+
+APP_ROOT = File.expand_path("..", __dir__)
+
+def system!(*args)
+  system(*args, exception: true)
+end
+
+FileUtils.chdir(APP_ROOT) do
+  puts "== Installing gems =="
+  system("bundle check") || system!("bundle install")
+
+  puts "\n== Preparing the database =="
+  system! "bin/rails db:prepare"
+
+  puts "\n== Loading BBQ sample data =="
+  system! "bin/rails db:seed"
+
+  puts "\n== Done =="
+  puts "Start the store with:  bin/rails server"
+  puts
+  if ENV["APPSIGNAL_PUSH_API_KEY"].to_s.empty?
+    puts "Note: APPSIGNAL_PUSH_API_KEY is not set, so AppSignal is inactive."
+    puts "      Set it and restart to send data:"
+    puts "      export APPSIGNAL_PUSH_API_KEY=\"your-key\""
+  else
+    puts "AppSignal is configured and will report as \"#{ENV.fetch("APPSIGNAL_APP_NAME", "Smokestack BBQ Supply")}\"."
+  end
+end

@@ -1,0 +1,56 @@
+<% content_for :title, "Grills, smokers, rubs and wood" %>
+
+<section class="hero">
+  <div class="wrap hero-inner">
+    <div class="hero-copy">
+      <p class="eyebrow">Low. Slow. Properly equipped.</p>
+      <h1>Everything you need between<br>the fire and the plate.</h1>
+      <p class="lede">Offset smokers built from steel thick enough to matter, rubs ground coarse
+        enough to survive a twelve-hour cook, and the one thermometer worth owning.</p>
+      <div class="hero-actions">
+        <%= link_to "Shop grills & smokers", category_path("grills"), class: "btn btn-primary" %>
+        <%= link_to "See the AppSignal demos", demo_path, class: "btn btn-ghost" %>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div><strong><%= @products.size %></strong><span>products in stock</span></div>
+      <div><strong><%= Review.count %></strong><span>customer reviews</span></div>
+      <div><strong><%= money(Order::FREE_SHIPPING_THRESHOLD_CENTS) %></strong><span>free shipping over</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap section">
+  <div class="section-head"><h2>Shop by category</h2></div>
+  <div class="category-grid">
+    <% @categories.each do |category| %>
+      <%= link_to category_path(category.slug), class: "category-tile" do %>
+        <h3><%= category.name %></h3>
+        <p><%= category.tagline %></p>
+        <span class="tile-count"><%= category.products.size %> items</span>
+      <% end %>
+    <% end %>
+  </div>
+</section>
+
+<% if @featured.any? %>
+  <section class="wrap section">
+    <div class="section-head">
+      <h2>Pit crew favourites</h2>
+      <p>The things our customers come back for.</p>
+    </div>
+    <div class="grid">
+      <%= render partial: "shared/product_card", collection: @featured, as: :product %>
+    </div>
+  </section>
+<% end %>
+
+<section class="wrap section">
+  <div class="section-head">
+    <h2>The whole yard</h2>
+    <p>Every product we stock, all <%= @products.size %> of them.</p>
+  </div>
+  <div class="grid">
+    <%= render partial: "shared/product_card", collection: @products, as: :product %>
+  </div>
+</section>

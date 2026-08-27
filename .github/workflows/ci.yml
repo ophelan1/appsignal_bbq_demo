@@ -1,0 +1,127 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  static:
+    name: Static checks (no gems)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: false
+      - name: Syntax, routes, templates
+        run: bin/static-check
+
+  test:
+    name: Test on Ruby ${{ matrix.ruby }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: ["3.2", "3.3", "3.4"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+
+      - name: Prepare the database
+        run: bin/rails db:prepare
+        env:
+          RAILS_ENV: test
+
+      - name: Run the test suite
+        run: bin/rails test
+        env:
+          RAILS_ENV: test
+
+  smoke:
+    name: Boot, seed and exercise every demo endpoint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+
+      - name: Prepare and seed
+        run: |
+          bin/rails db:prepare
+          bin/rails db:seed
+
+      - name: Check the seed data landed
+        run: bin/rails demo:status
+
+      - name: Boot the server
+        run: |
+          # nohup + disown so the server survives the end of this step's shell.
+          nohup bin/rails server -p 3000 > server.log 2>&1 &
+          disown
+          for i in $(seq 1 60); do
+            if curl -sf http://127.0.0.1:3000/up > /dev/null; then
+              echo "server up after ${i}s"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "server never came up. Log:"
+          cat server.log
+          exit 1
+
+      - name: Storefront pages return 200
+        run: |
+          set -e
+          for path in / /cart /orders /demo /search?q=brisket \
+                      /categories/grills /categories/rubs /categories/sauces \
+                      /categories/wood /categories/tools \
+                      /products/rub-brisket /products/kamado-19 /up; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000${path}")
+            printf "  %-34s %s\n" "$path" "$code"
+            [ "$code" = "200" ] || { echo "FAILED: $path returned $code"; exit 1; }
+          done
+
+      - name: Demo endpoints behave as documented
+        run: |
+          set -e
+          # These must succeed.
+          for path in /demo/slow_query /demo/n_plus_one /demo/optimised \
+                      /demo/handled_error /demo/memory_hog /demo/custom_metric; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000${path}")
+            printf "  %-28s %s\n" "$path" "$code"
+            [ "$code" = "200" ] || { echo "FAILED: $path returned $code"; exit 1; }
+          done
+
+          # And this one must fail, on purpose.
+          code=$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000/demo/error")
+          printf "  %-28s %s (expected 500)\n" "/demo/error" "$code"
+          [ "$code" = "500" ] || { echo "FAILED: /demo/error should 500, got $code"; exit 1; }
+
+      - name: 404s are real 404s
+        run: |
+          set -e
+          for path in /products/does-not-exist /categories/does-not-exist /orders/SMK-000000; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000${path}")
+            printf "  %-34s %s\n" "$path" "$code"
+            [ "$code" = "404" ] || { echo "FAILED: $path returned $code"; exit 1; }
+          done
+
+      - name: Traffic generator runs end to end
+        run: bin/rails demo:burst
+
+      - name: Server log (on failure)
+        if: failure()
+        run: tail -n 200 server.log || echo "no server log"

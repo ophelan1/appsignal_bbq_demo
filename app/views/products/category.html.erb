@@ -1,0 +1,12 @@
+<% content_for :title, @category.name %>
+
+<section class="wrap section">
+  <nav class="crumbs"><%= link_to "Store", root_path %> <span>/</span> <%= @category.name %></nav>
+  <div class="section-head">
+    <h1><%= @category.name %></h1>
+    <p><%= @category.tagline %> · <%= @products.size %> products</p>
+  </div>
+  <div class="grid">
+    <%= render partial: "shared/product_card", collection: @products, as: :product %>
+  </div>
+</section>

@@ -1,0 +1,40 @@
+<% content_for :title, "N+1 demo" %>
+<section class="wrap section">
+  <nav class="crumbs"><%= link_to "Demos", demo_path %> <span>/</span> Query loading</nav>
+  <div class="section-head">
+    <h1><%= action_name == "optimised" ? "Optimised (eager loaded)" : "N+1 queries" %></h1>
+    <p>
+      <% if action_name == "optimised" %>
+        Three queries in total: products, categories, reviews.
+      <% else %>
+        One query for the products, then two more for every single one of them.
+      <% end %>
+    </p>
+  </div>
+
+  <div class="demo-result">
+    <p>Rendered <strong><%= @products.size %></strong> products.
+      <% if action_name == "optimised" %>
+        Compare this trace with <%= link_to "the N+1 version", demo_n_plus_one_path %>.
+      <% else %>
+        Now compare with <%= link_to "the optimised version", demo_optimised_path %> — same page,
+        same output, a fraction of the queries.
+      <% end %>
+    </p>
+  </div>
+
+  <table class="orders-table">
+    <thead><tr><th>Product</th><th>Category</th><th>Reviews</th><th>Avg rating</th></tr></thead>
+    <tbody>
+      <% @products.each do |product| %>
+        <tr>
+          <td><%= product.name %></td>
+          <td><%= product.category.name %></td>
+          <td><%= product.reviews.size %></td>
+          <td><%= product.average_rating || "—" %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <p><%= link_to "Back to demos", demo_path, class: "btn btn-ghost" %></p>
+</section>

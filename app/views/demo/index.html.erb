@@ -1,0 +1,101 @@
+<% content_for :title, "AppSignal demos" %>
+
+<section class="wrap section">
+  <div class="section-head">
+    <h1>AppSignal demo controls</h1>
+    <p>Each button below produces one specific, recognisable shape in AppSignal.
+       None of it is part of the storefront.</p>
+  </div>
+
+  <div class="demo-status <%= @stats[:appsignal_active] ? "on" : "off" %>">
+    <% if @stats[:appsignal_active] %>
+      <strong>AppSignal is active.</strong>
+      Reporting as <code><%= ENV.fetch("APPSIGNAL_APP_NAME", "Smokestack BBQ Supply") %></code>
+      in the <code><%= ENV.fetch("APPSIGNAL_APP_ENV", Rails.env) %></code> environment.
+      Data usually appears within a minute.
+    <% else %>
+      <strong>AppSignal is not active.</strong>
+      The buttons still work, but nothing is being reported. Set a push API key and restart:
+      <code>export APPSIGNAL_PUSH_API_KEY="your-key"</code>
+    <% end %>
+  </div>
+
+  <div class="demo-grid">
+    <article class="demo-card">
+      <h3>Slow request</h3>
+      <p>A deliberately awful SQL query plus a simulated third-party call.</p>
+      <p class="demo-look"><strong>Look for:</strong> a slow event in Performance, with the SQL
+         event dominating the timeline.</p>
+      <%= link_to "Run slow query", demo_slow_query_path, class: "btn btn-primary" %>
+    </article>
+
+    <article class="demo-card">
+      <h3>N+1 query</h3>
+      <p>Renders every product without eager loading — one query per product, per association.</p>
+      <p class="demo-look"><strong>Look for:</strong> dozens of near-identical queries stacked in
+         the event timeline. Compare against the optimised version.</p>
+      <%= link_to "Run N+1", demo_n_plus_one_path, class: "btn btn-primary" %>
+      <%= link_to "Run optimised", demo_optimised_path, class: "btn btn-ghost" %>
+    </article>
+
+    <article class="demo-card">
+      <h3>Uncaught exception</h3>
+      <p>Raises a real error. The request 500s, exactly as it would in production.</p>
+      <p class="demo-look"><strong>Look for:</strong> a new error group in Errors, with backtrace,
+         request parameters and your tags attached.</p>
+      <%= link_to "Raise exception", demo_error_path, class: "btn btn-danger" %>
+    </article>
+
+    <article class="demo-card">
+      <h3>Handled exception</h3>
+      <p>Catches the error, reports it explicitly, and returns a normal page.</p>
+      <p class="demo-look"><strong>Look for:</strong> an error recorded against a
+         <em>successful</em> request — the pattern you actually want in real code.</p>
+      <%= link_to "Report handled error", demo_handled_error_path, class: "btn btn-primary" %>
+    </article>
+
+    <article class="demo-card">
+      <h3>Background jobs</h3>
+      <p>Queues stock reconciliation jobs. Every third one fails and retries.</p>
+      <p class="demo-look"><strong>Look for:</strong> the Background namespace, with both
+         successful and failing job samples.</p>
+      <%= button_to "Queue 6 jobs", demo_background_job_path,
+            params: { count: 6 }, class: "btn btn-primary" %>
+    </article>
+
+    <article class="demo-card">
+      <h3>Outbound HTTP</h3>
+      <p>Makes a real HTTPS request to an external API.</p>
+      <p class="demo-look"><strong>Look for:</strong> the HTTP call as its own event inside the
+         request timeline, with its own duration.</p>
+      <%= link_to "Call external API", demo_external_http_path, class: "btn btn-primary" %>
+    </article>
+
+    <article class="demo-card">
+      <h3>Memory churn</h3>
+      <p>Allocates a large throwaway array in one request.</p>
+      <p class="demo-look"><strong>Look for:</strong> the allocation and memory graphs on the
+         host metrics screen.</p>
+      <%= link_to "Allocate memory", demo_memory_hog_path, class: "btn btn-primary" %>
+    </article>
+
+    <article class="demo-card">
+      <h3>Custom metrics</h3>
+      <p>Sends a counter, two gauges and a distribution — pit temperature, wood remaining,
+         cook duration.</p>
+      <p class="demo-look"><strong>Look for:</strong> build a dashboard from these on the
+         Custom Metrics screen.</p>
+      <%= link_to "Send metrics", demo_custom_metric_path, class: "btn btn-primary" %>
+    </article>
+  </div>
+
+  <div class="demo-note">
+    <h3>Filling the dashboard before a demo</h3>
+    <p>Clicking buttons one at a time gives you a handful of data points. To make the graphs
+       look like a real application, run the traffic generator for a few minutes:</p>
+    <pre><code>bin/rails demo:traffic          # ~2 minutes of mixed traffic
+bin/rails demo:traffic MINUTES=10</code></pre>
+    <p class="muted">Current data: <%= @stats[:products] %> products,
+      <%= @stats[:reviews] %> reviews, <%= @stats[:orders] %> orders.</p>
+  </div>
+</section>

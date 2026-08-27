@@ -1,0 +1,57 @@
+<% content_for :title, "Order #{@order.reference}" %>
+
+<section class="wrap section">
+  <div class="confirmation">
+    <div class="confirm-mark" aria-hidden="true">
+      <svg viewBox="0 0 48 48" width="52" height="52" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 25l9 9 16-19"/>
+      </svg>
+    </div>
+    <h1>Order <%= @order.reference %></h1>
+    <p class="lede">Thanks, <%= @order.customer_name.split(" ").first %>. Your order is logged and
+      the pit is warming up. A confirmation job has been queued — look for it in AppSignal's
+      Background namespace.</p>
+
+    <div class="receipt">
+      <table class="receipt-table">
+        <thead>
+          <tr><th scope="col">Item</th><th scope="col">Qty</th><th scope="col">Unit</th><th scope="col">Total</th></tr>
+        </thead>
+        <tbody>
+          <% @order.order_items.each do |item| %>
+            <tr>
+              <td><%= link_to item.product.name, product_path(item.product.slug) %></td>
+              <td><%= item.quantity %></td>
+              <td><%= money(item.unit_cents) %></td>
+              <td><%= money(item.line_total_cents) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+        <tfoot>
+          <tr><th colspan="3" scope="row">Subtotal</th><td><%= money(@order.subtotal_cents) %></td></tr>
+          <tr><th colspan="3" scope="row">Shipping</th><td><%= @order.shipping_cents.zero? ? "Free" : money(@order.shipping_cents) %></td></tr>
+          <tr class="receipt-total"><th colspan="3" scope="row">Total</th><td><%= money(@order.total_cents) %></td></tr>
+          <tr class="receipt-vat"><th colspan="3" scope="row">Includes VAT</th><td><%= money(@order.vat_cents) %></td></tr>
+        </tfoot>
+      </table>
+
+      <div class="ship-to">
+        <h3>Shipping to</h3>
+        <address>
+          <%= @order.customer_name %><br>
+          <%= @order.address %><br>
+          <%= @order.postcode %> <%= @order.city %><br>
+          <%= @order.country %>
+        </address>
+        <% if @order.notes.present? %>
+          <p class="muted">Notes: <%= @order.notes %></p>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="hero-actions">
+      <%= link_to "Back to the store", root_path, class: "btn btn-primary" %>
+      <%= link_to "See all orders", orders_path, class: "btn btn-ghost" %>
+    </div>
+  </div>
+</section>

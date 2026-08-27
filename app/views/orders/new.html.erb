@@ -1,0 +1,87 @@
+<% content_for :title, "Checkout" %>
+
+<section class="wrap section">
+  <nav class="crumbs">
+    <%= link_to "Store", root_path %> <span>/</span> <%= link_to "Cart", cart_path %> <span>/</span> Checkout
+  </nav>
+  <div class="section-head">
+    <h1>Checkout</h1>
+    <p>Demo store — no payment details are asked for and no card is ever charged.</p>
+  </div>
+
+  <% if @order.errors.any? %>
+    <div class="flash flash-error" role="alert">
+      Please fix <%= pluralize(@order.errors.count, "field") %> below.
+    </div>
+  <% end %>
+
+  <div class="checkout-layout">
+    <%= form_with model: @order, url: checkout_path, method: :post, class: "checkout-form", data: { turbo: false } do |form| %>
+      <h2>Delivery details</h2>
+
+      <div class="field <%= "has-error" if @order.errors[:customer_name].any? %>">
+        <%= form.label :customer_name, "Full name" %>
+        <%= form.text_field :customer_name, autocomplete: "name" %>
+        <% @order.errors[:customer_name].each do |message| %><span class="error"><%= message %></span><% end %>
+      </div>
+
+      <div class="field <%= "has-error" if @order.errors[:email].any? %>">
+        <%= form.label :email, "Email" %>
+        <%= form.email_field :email, autocomplete: "email" %>
+        <% @order.errors[:email].each do |message| %><span class="error"><%= message %></span><% end %>
+      </div>
+
+      <div class="field <%= "has-error" if @order.errors[:address].any? %>">
+        <%= form.label :address, "Street address" %>
+        <%= form.text_field :address, autocomplete: "street-address" %>
+        <% @order.errors[:address].each do |message| %><span class="error"><%= message %></span><% end %>
+      </div>
+
+      <div class="field-row">
+        <div class="field <%= "has-error" if @order.errors[:postcode].any? %>">
+          <%= form.label :postcode, "Postcode" %>
+          <%= form.text_field :postcode, autocomplete: "postal-code" %>
+          <% @order.errors[:postcode].each do |message| %><span class="error"><%= message %></span><% end %>
+        </div>
+        <div class="field <%= "has-error" if @order.errors[:city].any? %>">
+          <%= form.label :city, "City" %>
+          <%= form.text_field :city, autocomplete: "address-level2" %>
+          <% @order.errors[:city].each do |message| %><span class="error"><%= message %></span><% end %>
+        </div>
+      </div>
+
+      <div class="field <%= "has-error" if @order.errors[:country].any? %>">
+        <%= form.label :country, "Country" %>
+        <%= form.select :country, Order::COUNTRIES, { include_blank: "Choose a country…" } %>
+        <% @order.errors[:country].each do |message| %><span class="error"><%= message %></span><% end %>
+      </div>
+
+      <div class="field">
+        <%= form.label :notes do %>Delivery notes <span class="muted">(optional)</span><% end %>
+        <%= form.text_area :notes, rows: 3, placeholder: "Leave it with the neighbour, mind the dog…" %>
+      </div>
+
+      <%= form.submit "Place order", class: "btn btn-primary btn-lg btn-block" %>
+    <% end %>
+
+    <aside class="summary">
+      <h2>Your order</h2>
+      <ul class="summary-lines">
+        <% current_cart.lines.each do |line| %>
+          <li>
+            <span class="sl-qty"><%= line.quantity %>×</span>
+            <span class="sl-name"><%= line.product.name %></span>
+            <span class="sl-total"><%= money(line.line_total_cents) %></span>
+          </li>
+        <% end %>
+      </ul>
+      <dl>
+        <div><dt>Subtotal</dt><dd><%= money(current_cart.subtotal_cents) %></dd></div>
+        <div><dt>Shipping</dt><dd><%= current_cart.shipping_cents.zero? ? "Free" : money(current_cart.shipping_cents) %></dd></div>
+        <div class="summary-total"><dt>Total</dt><dd><%= money(current_cart.total_cents) %></dd></div>
+        <div class="summary-vat"><dt>Includes VAT</dt><dd><%= money(current_cart.vat_cents) %></dd></div>
+      </dl>
+      <%= link_to "Edit cart", cart_path, class: "btn btn-ghost btn-block" %>
+    </aside>
+  </div>
+</section>

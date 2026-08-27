@@ -1,0 +1,58 @@
+<% content_for :title, "Your cart" %>
+
+<section class="wrap section">
+  <div class="section-head"><h1>Your cart</h1></div>
+
+  <% if current_cart.empty? %>
+    <div class="empty">
+      <p>Your cart is cold.</p>
+      <p class="muted">Nothing in here yet — go and find something worth lighting a fire for.</p>
+      <%= link_to "Start shopping", root_path, class: "btn btn-primary" %>
+    </div>
+  <% else %>
+    <div class="cart-layout">
+      <div class="cart-items">
+        <% current_cart.lines.each do |line| %>
+          <div class="cart-row">
+            <%= link_to product_path(line.product.slug), class: "cart-art" do %>
+              <%= product_art(line.product, size: 120) %>
+            <% end %>
+            <div class="cart-detail">
+              <h3><%= link_to line.product.name, product_path(line.product.slug) %></h3>
+              <p class="muted"><%= money(line.product.price_cents) %> each · <%= stock_note(line.product) %></p>
+
+              <%= form_with url: cart_update_path, method: :patch, class: "cart-controls", data: { turbo: false } do %>
+                <%= hidden_field_tag :slug, line.product.slug %>
+                <label class="sr-only" for="qty-<%= line.product.slug %>">Quantity</label>
+                <input id="qty-<%= line.product.slug %>" class="qty" type="number" name="quantity"
+                       value="<%= line.quantity %>" min="0" max="<%= line.product.max_orderable %>">
+                <button class="btn btn-small" type="submit">Update</button>
+              <% end %>
+
+              <%= button_to "Remove", cart_remove_path, method: :delete,
+                    params: { slug: line.product.slug }, class: "link-btn" %>
+            </div>
+            <div class="cart-line-total"><%= money(line.line_total_cents) %></div>
+          </div>
+        <% end %>
+      </div>
+
+      <aside class="summary">
+        <h2>Summary</h2>
+        <dl>
+          <div><dt>Subtotal</dt><dd><%= money(current_cart.subtotal_cents) %></dd></div>
+          <div><dt>Shipping</dt><dd><%= current_cart.shipping_cents.zero? ? "Free" : money(current_cart.shipping_cents) %></dd></div>
+          <div class="summary-total"><dt>Total</dt><dd><%= money(current_cart.total_cents) %></dd></div>
+          <div class="summary-vat"><dt>Includes VAT</dt><dd><%= money(current_cart.vat_cents) %></dd></div>
+        </dl>
+        <% if current_cart.cents_to_free_shipping.positive? %>
+          <p class="ship-note">Add <strong><%= money(current_cart.cents_to_free_shipping) %></strong> more for free shipping.</p>
+        <% else %>
+          <p class="ship-note ship-free">Free shipping unlocked.</p>
+        <% end %>
+        <%= link_to "Checkout", checkout_path, class: "btn btn-primary btn-block" %>
+        <%= link_to "Keep shopping", root_path, class: "btn btn-ghost btn-block" %>
+      </aside>
+    </div>
+  <% end %>
+</section>

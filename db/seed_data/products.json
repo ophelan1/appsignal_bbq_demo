@@ -1,0 +1,232 @@
+{
+  "currency": "EUR",
+  "categories": [
+    { "slug": "grills",  "name": "Grills & Smokers", "tagline": "The heart of the cook" },
+    { "slug": "rubs",    "name": "Rubs & Spices",    "tagline": "Bark starts here" },
+    { "slug": "sauces",  "name": "Sauces & Glazes",  "tagline": "Sticky, smoky, sharp" },
+    { "slug": "wood",    "name": "Wood & Charcoal",  "tagline": "Fuel with flavour" },
+    { "slug": "tools",   "name": "Tools & Gear",     "tagline": "Kit that earns its keep" }
+  ],
+  "products": [
+    {
+      "id": "offset-smoker-1200",
+      "name": "Ironside 1200 Offset Smoker",
+      "category": "grills",
+      "price_cents": 129900,
+      "stock": 4,
+      "heat": 0,
+      "badges": ["flagship"],
+      "summary": "6mm steel offset with a reverse-flow baffle that holds 110°C all afternoon.",
+      "description": "The Ironside 1200 is built from 6mm rolled steel, which is the whole point: mass is what turns a windy Saturday into a stable cook. The reverse-flow baffle plate drags heat under the cooking grate and back over the meat, so the end nearest the firebox stops running hot. Two 60cm cooking grates, a hinged firebox with a proper ash pan, and a stack damper you can set once and forget. Assembled weight 148kg — buy it once."
+    },
+    {
+      "id": "kamado-19",
+      "name": "Ember Egg 19\" Kamado",
+      "category": "grills",
+      "price_cents": 74900,
+      "stock": 9,
+      "heat": 0,
+      "badges": ["bestseller"],
+      "summary": "Ceramic kamado that runs 90°C overnight or 350°C for steak.",
+      "description": "Thick-walled ceramic with a stainless top vent and a felt-free gasket that will not fuse shut after a high-heat clean. The 19-inch grate is the sweet spot: big enough for a pork shoulder and two racks of ribs, small enough to fire with a single chimney of lump. Holds low-and-slow temperatures overnight with roughly 2kg of charcoal."
+    },
+    {
+      "id": "pellet-grill-660",
+      "name": "Drifter 660 Pellet Grill",
+      "category": "grills",
+      "price_cents": 89900,
+      "stock": 6,
+      "heat": 0,
+      "badges": [],
+      "summary": "PID-controlled pellet grill, 65°C cold smoke through to 290°C sear.",
+      "description": "A PID controller that actually deserves the name — it holds set temperature within about 3°C instead of swinging 20 either side. 6,100 cm² across two racks, a sliding sear plate over the burn pot, and a hopper that will run about 14 hours at smoking temperatures. Wi-Fi board included, though the two meat probes work perfectly well without it."
+    },
+    {
+      "id": "portable-kettle-47",
+      "name": "Roadside 47 Kettle",
+      "category": "grills",
+      "price_cents": 18900,
+      "stock": 22,
+      "heat": 0,
+      "badges": [],
+      "summary": "Porcelain-enamelled 47cm kettle with a hinged grate and ash catcher.",
+      "description": "The kettle is the most under-rated smoker in the garden. Bank the coals to one side, put a foil pan of water opposite, and this holds 130°C for three hours without touching it. Porcelain-enamelled bowl and lid, aluminised steel legs, hinged grate for adding fuel mid-cook, and a one-touch ash sweep."
+    },
+    {
+      "id": "rub-brisket",
+      "name": "Blackened Brisket Rub",
+      "category": "rubs",
+      "price_cents": 1450,
+      "stock": 140,
+      "heat": 2,
+      "badges": ["bestseller"],
+      "summary": "16-mesh pepper and coarse salt, the way central Texas intended.",
+      "description": "Two ingredients do most of the work here: 16-mesh black pepper and coarse kosher salt, with a little garlic and a whisper of ancho to round it out. Coarse grind matters — fine pepper burns before the bark sets. 350g shaker, enough for roughly four packer briskets."
+    },
+    {
+      "id": "rub-coffee-chili",
+      "name": "Midnight Coffee & Chilli Rub",
+      "category": "rubs",
+      "price_cents": 1650,
+      "stock": 96,
+      "heat": 3,
+      "badges": [],
+      "summary": "Dark roast coffee, chipotle and cocoa for beef ribs and short rib.",
+      "description": "Ground dark-roast coffee gives you bitterness that reads as bark, chipotle brings a slow warmth, and a little unsweetened cocoa deepens the colour without turning it sweet. Built for beef — dino ribs, chuck, short rib — but it is very good on a lamb shoulder too. 300g tin."
+    },
+    {
+      "id": "rub-carolina",
+      "name": "Carolina Gold Pork Rub",
+      "category": "rubs",
+      "price_cents": 1350,
+      "stock": 118,
+      "heat": 1,
+      "badges": [],
+      "summary": "Mustard, brown sugar and paprika. Pulled pork's default setting.",
+      "description": "Yellow mustard powder, dark brown sugar, sweet paprika and celery salt. The sugar is there to caramelise rather than to sweeten, so it takes a long cook without going bitter. Rub it on a shoulder the night before and let it turn tacky in the fridge. 350g shaker."
+    },
+    {
+      "id": "rub-chicken",
+      "name": "Backyard Bird Seasoning",
+      "category": "rubs",
+      "price_cents": 1150,
+      "stock": 160,
+      "heat": 1,
+      "badges": [],
+      "summary": "Poultry rub with lemon peel, sage and enough salt to brine the skin.",
+      "description": "Salt-forward so it works as a dry brine — season the bird, leave it uncovered in the fridge overnight, and the skin dries out enough to actually crisp. Lemon peel, sage, white pepper, onion and a little turmeric for colour. 300g shaker."
+    },
+    {
+      "id": "sauce-kansas",
+      "name": "Kansas Crown Thick Sauce",
+      "category": "sauces",
+      "price_cents": 990,
+      "stock": 130,
+      "heat": 1,
+      "badges": ["bestseller"],
+      "summary": "Tomato and molasses, thick enough to stand a brush up in.",
+      "description": "The classic sweet-and-thick style: tomato, molasses, dark brown sugar, cider vinegar and a long list of spices that mostly stay out of the way. Brush it on in the last 20 minutes or the sugars will scorch. 500ml squeeze bottle."
+    },
+    {
+      "id": "sauce-vinegar",
+      "name": "Eastern Carolina Vinegar Mop",
+      "category": "sauces",
+      "price_cents": 850,
+      "stock": 105,
+      "heat": 3,
+      "badges": [],
+      "summary": "Thin, sharp, chilli-flecked. The one that cuts through fat.",
+      "description": "Cider vinegar, crushed red pepper, black pepper, a little salt and almost nothing else. It is meant to be thin — you mop it on during the cook and toss it through pulled pork afterwards. If you have only ever had thick sauce, this is the one that will change your mind. 500ml bottle."
+    },
+    {
+      "id": "sauce-alabama",
+      "name": "Alabama White",
+      "category": "sauces",
+      "price_cents": 950,
+      "stock": 88,
+      "heat": 2,
+      "badges": [],
+      "summary": "Mayonnaise, vinegar and horseradish. Strange until you try it on chicken.",
+      "description": "A mayonnaise-based sauce sharpened with cider vinegar, horseradish and a lot of black pepper. Dunk a whole smoked chicken in it, or use it as a dressing for slaw. Keep it refrigerated and use within three weeks of opening. 400ml jar."
+    },
+    {
+      "id": "sauce-gochujang",
+      "name": "Ember & Gochujang Glaze",
+      "category": "sauces",
+      "price_cents": 1250,
+      "stock": 74,
+      "heat": 4,
+      "badges": ["new"],
+      "summary": "Fermented chilli, honey and rice vinegar for ribs and wings.",
+      "description": "Gochujang brings a savoury, slightly funky heat that plays much better with smoke than a straight hot sauce does. Balanced with honey, rice vinegar, toasted sesame and garlic. Glaze pork ribs in the final 15 minutes, or toss wings straight off the grill. 350ml bottle."
+    },
+    {
+      "id": "wood-post-oak",
+      "name": "Post Oak Splits, 15kg",
+      "category": "wood",
+      "price_cents": 3400,
+      "stock": 45,
+      "heat": 0,
+      "badges": ["bestseller"],
+      "summary": "Seasoned to 18% moisture. The default wood for beef.",
+      "description": "Kiln-finished post oak split to roughly 40cm, seasoned down to about 18% moisture so it lights clean and does not smoulder. Oak is the neutral backbone of Texas barbecue — assertive enough for brisket, mild enough that it will not overwhelm pork. 15kg box, roughly one long cook."
+    },
+    {
+      "id": "wood-cherry",
+      "name": "Cherry Wood Chunks, 5kg",
+      "category": "wood",
+      "price_cents": 1900,
+      "stock": 82,
+      "heat": 0,
+      "badges": [],
+      "summary": "Mild, sweet, and the fastest route to a deep mahogany colour.",
+      "description": "Fist-sized cherry chunks for kamados, kettles and pellet grills that take a smoke tube. Cherry is mild enough to use on its own with poultry and fish, and it does more for colour than almost any other wood — a chicken smoked over cherry comes off looking lacquered. 5kg bag."
+    },
+    {
+      "id": "charcoal-lump",
+      "name": "Marabu Lump Charcoal, 10kg",
+      "category": "wood",
+      "price_cents": 2900,
+      "stock": 60,
+      "heat": 0,
+      "badges": [],
+      "summary": "Dense hardwood lump that burns hot and leaves very little ash.",
+      "description": "Marabu is punishingly dense, which means long burn times and high ceiling temperatures — it will take a kamado past 400°C for pizza and still have usable fuel left the next morning. Very low ash, minimal sparking, no binders or accelerants. 10kg bag."
+    },
+    {
+      "id": "tool-thermometer",
+      "name": "Instant-Read Thermapoint",
+      "category": "tools",
+      "price_cents": 8900,
+      "stock": 54,
+      "heat": 0,
+      "badges": ["bestseller"],
+      "summary": "Two-second read, 0.3°C accuracy, waterproof. Buy this before anything else.",
+      "description": "If you own one piece of barbecue kit beyond the grill itself, make it a fast thermometer. Two-second readings, accurate to 0.3°C, IP67 waterproof, auto-rotating backlit display, and a probe thin enough not to drain a steak. Doneness is a temperature, not a time."
+    },
+    {
+      "id": "tool-gloves",
+      "name": "Aramid Pit Gloves",
+      "category": "tools",
+      "price_cents": 3900,
+      "stock": 70,
+      "heat": 0,
+      "badges": [],
+      "summary": "Heat-resistant to 350°C with a silicone grip that survives a wet brisket.",
+      "description": "Aramid knit with a silicone-dotted palm, rated to 350°C for short contact. Long enough at the cuff to protect your forearms when you reach into a firebox, and dextrous enough to pull a shoulder apart while it is still too hot to touch. Machine washable."
+    },
+    {
+      "id": "tool-slicer",
+      "name": "30cm Brisket Slicer",
+      "category": "tools",
+      "price_cents": 6500,
+      "stock": 38,
+      "heat": 0,
+      "badges": [],
+      "summary": "Granton-edged carving knife long enough to cross a packer in one stroke.",
+      "description": "A brisket is wider than most kitchen knives are long, and sawing at it tears the grain. This is a 30cm Granton-edged slicer in German stainless — the hollow ovals along the blade break suction so slices fall away cleanly. Full tang, pakkawood handle, takes an edge easily."
+    },
+    {
+      "id": "tool-chimney",
+      "name": "Chimney Starter",
+      "category": "tools",
+      "price_cents": 2400,
+      "stock": 95,
+      "heat": 0,
+      "badges": [],
+      "summary": "Two sheets of newspaper and twelve minutes. No lighter fluid, ever.",
+      "description": "Aluminised steel chimney with a heat shield and a hinged secondary handle for controlled pouring. Fills a 47cm kettle in one load and gets there in about twelve minutes. Lighter fluid makes food taste like lighter fluid; this solves that permanently."
+    },
+    {
+      "id": "tool-butcher-paper",
+      "name": "Pink Butcher Paper, 50m Roll",
+      "category": "tools",
+      "price_cents": 2200,
+      "stock": 110,
+      "heat": 0,
+      "badges": [],
+      "summary": "Unwaxed, unbleached, breathable. Wrap without steaming the bark.",
+      "description": "Foil traps steam and turns hard-won bark soft. Unwaxed pink butcher paper breathes just enough to push a brisket through the stall while keeping the bark intact. FDA-approved, food-safe, no wax or coating. 60cm wide, 50m roll."
+    }
+  ]
+}

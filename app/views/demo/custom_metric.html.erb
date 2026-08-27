@@ -1,0 +1,20 @@
+<% content_for :title, "Custom metrics" %>
+<section class="wrap section">
+  <nav class="crumbs"><%= link_to "Demos", demo_path %> <span>/</span> Custom metrics</nav>
+  <div class="section-head"><h1>Metrics sent</h1></div>
+  <div class="demo-result">
+    <% if @sent.present? %>
+      <p>Sent four metrics:</p>
+      <ul class="metric-list">
+        <% @sent.each do |metric| %><li><code><%= metric %></code></li><% end %>
+      </ul>
+      <p class="muted">These do not appear automatically — build a dashboard from them on the
+        Custom Metrics screen. Press the button a few times so there is a series to plot.</p>
+    <% else %>
+      <p>AppSignal is inactive, so nothing was sent. Set <code>APPSIGNAL_PUSH_API_KEY</code>
+        and restart.</p>
+    <% end %>
+  </div>
+  <p><%= link_to "Send more", demo_custom_metric_path, class: "btn btn-primary" %>
+     <%= link_to "Back to demos", demo_path, class: "btn btn-ghost" %></p>
+</section>

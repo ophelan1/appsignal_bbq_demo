@@ -1,0 +1,75 @@
+<% content_for :title, @product.name %>
+
+<section class="wrap section">
+  <nav class="crumbs">
+    <%= link_to "Store", root_path %> <span>/</span>
+    <%= link_to @product.category.name, category_path(@product.category.slug) %>
+    <span>/</span> <%= @product.name %>
+  </nav>
+
+  <div class="product-detail">
+    <div class="product-media">
+      <%= product_art(@product, size: 640) %>
+      <div class="card-badges"><%= badge_tags(@product) %></div>
+    </div>
+
+    <div class="product-info">
+      <h1><%= @product.name %></h1>
+      <p class="product-summary"><%= @product.summary %></p>
+
+      <div class="product-price-row">
+        <span class="price price-lg"><%= money(@product.price_cents) %></span>
+        <%= heat_meter(@product.heat) %>
+        <span class="stock <%= stock_class(@product) %>"><%= stock_note(@product) %></span>
+      </div>
+
+      <% if @product.in_stock? %>
+        <%= form_with url: cart_add_path, method: :post, class: "add-form", data: { turbo: false } do %>
+          <%= hidden_field_tag :slug, @product.slug %>
+          <%= hidden_field_tag :return_to, product_path(@product.slug) %>
+          <label class="sr-only" for="quantity">Quantity</label>
+          <input id="quantity" class="qty" type="number" name="quantity" value="1"
+                 min="1" max="<%= @product.max_orderable %>">
+          <button class="btn btn-primary btn-lg" type="submit">Add to cart</button>
+        <% end %>
+        <% if current_cart.quantity_of(@product).positive? %>
+          <p class="in-cart-note"><%= current_cart.quantity_of(@product) %> already in your
+            <%= link_to "cart", cart_path %>.</p>
+        <% end %>
+      <% else %>
+        <p class="sold-out-note">Sold out. More arrives when the next kiln load is seasoned.</p>
+      <% end %>
+
+      <div class="prose"><%= paragraphs(@product.description) %></div>
+
+      <ul class="product-meta">
+        <li><span>Category</span><%= link_to @product.category.name, category_path(@product.category.slug) %></li>
+        <li><span>SKU</span><code><%= @product.slug %></code></li>
+        <li><span>Rating</span><%= rating_stars(@product.average_rating) %></li>
+      </ul>
+    </div>
+  </div>
+
+  <% if @product.reviews.any? %>
+    <div class="section-head section-head-sm"><h2>What people say</h2></div>
+    <div class="reviews">
+      <% @product.reviews.sort_by(&:created_at).reverse.each do |review| %>
+        <article class="review">
+          <div class="review-head">
+            <strong><%= review.author_name %></strong>
+            <span class="rating"><%= "★" * review.rating %><span class="muted"><%= "☆" * (5 - review.rating) %></span></span>
+          </div>
+          <p><%= review.body %></p>
+          <span class="muted review-date"><%= review.created_at.strftime("%-d %B %Y") %></span>
+        </article>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if @related.any? %>
+    <div class="section-head section-head-sm"><h2>Goes well with</h2></div>
+    <div class="grid">
+      <%= render partial: "shared/product_card", collection: @related, as: :product %>
+    </div>
+  <% end %>
+</section>

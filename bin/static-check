@@ -1,0 +1,233 @@
+#!/usr/bin/env ruby
+# Static checks that need no gems and no database.
+#
+#     bin/static-check
+#
+# Verifies Ruby and ERB syntax, that every route points at a real controller
+# action, that every path helper and template referenced actually exists, and
+# that the attributes used in seeds and tests match the migrations.
+#
+# The test suite covers far more, but needs `bundle install` first. This runs
+# anywhere Ruby does, in about a second, and catches the mistakes that are
+# easiest to make while editing views.
+
+require "erb"
+require "set"
+
+ROOT = File.expand_path("..", __dir__)
+Dir.chdir(ROOT)
+
+# Reads from `start` until the matching close paren, respecting nesting.
+def balanced_args(src, start)
+  depth = 1
+  index = start
+  while index < src.length
+    case src[index]
+    when "(" then depth += 1
+    when ")" then (depth -= 1; return src[start...index] if depth.zero?)
+    end
+    index += 1
+  end
+  nil
+end
+
+# Only `key:` pairs at nesting depth zero are attributes of this call.
+def top_level_keys(args)
+  keys = []
+  depth = 0
+  args.scan(/[()\[\]{}]|(\w+):\s/) do |match|
+    token = Regexp.last_match(0)
+    case token
+    when "(", "[", "{" then depth += 1
+    when ")", "]", "}" then depth -= 1
+    else keys << match.first if depth.zero? && match.first
+    end
+  end
+  keys
+end
+
+$failures = []
+$checks = 0
+
+def check(label, ok, detail = nil)
+  $checks += 1
+  return if ok
+
+  $failures << "#{label}#{detail ? " — #{detail}" : ""}"
+end
+
+def section(title)
+  puts "\n== #{title} =="
+end
+
+# ---------------------------------------------------------------- A. Ruby syntax
+section "Ruby syntax"
+rb_files = Dir.glob("{app,config,db,lib,test}/**/*.rb") + Dir.glob("{Rakefile,config.ru}") +
+           Dir.glob("lib/tasks/*.rake") + %w[bin/rails bin/rake bin/setup]
+rb_files.each do |file|
+  out = `ruby -c #{file} 2>&1`
+  check("syntax #{file}", $?.success?, out.strip)
+end
+puts "  #{rb_files.size} Ruby files checked"
+
+# ------------------------------------------------------------------ B. ERB syntax
+section "ERB templates"
+erb_files = Dir.glob("app/views/**/*.erb")
+erb_files.each do |file|
+  src = File.read(file, encoding: "UTF-8")
+  # Rails' Erubi handles `<%= form_with ... do %>` specially; plain ERB does not.
+  # Rewrite block-opening output tags so the generated Ruby is comparable.
+  normalised = src.gsub(/<%=((?:(?!%>).)*?\bdo\b\s*(?:\|[^|]*\|)?\s*)%>/m) { "<%#{$1}%>" }
+  begin
+    compiled = ERB.new(normalised, trim_mode: "-").src
+    # Rails compiles a template into a method body, which is what makes a bare
+    # `yield` legal. Parse it the same way or the layout looks broken.
+    eval("BEGIN {return}; def __parse_probe__; #{compiled}; end", binding, file)
+    check("erb #{file}", true)
+  rescue SyntaxError => e
+    check("erb #{file}", false, e.message.lines.first(3).join(" ").strip)
+  rescue StandardError
+    check("erb #{file}", true) # runtime errors are expected; we only want parse errors
+  end
+end
+puts "  #{erb_files.size} templates checked"
+
+# ------------------------------------------------- C. routes point at real actions
+section "Routes resolve to controller actions"
+routes_src = File.read("config/routes.rb", encoding: "UTF-8")
+targets = routes_src.scan(/to:\s*"([\w\/]+)#(\w+)"/) + routes_src.scan(/^\s*root\s+"([\w\/]+)#(\w+)"/)
+
+controller_actions = {}
+Dir.glob("app/controllers/*_controller.rb").each do |file|
+  name = File.basename(file, "_controller.rb")
+  body = File.read(file, encoding: "UTF-8")
+  public_part = body.split(/^\s*private\s*$/).first.to_s
+  controller_actions[name] = public_part.scan(/^\s{2}def\s+(\w+)/).flatten.to_set
+end
+
+targets.uniq.each do |controller, action|
+  actions = controller_actions[controller]
+  check("route #{controller}##{action}", actions&.include?(action),
+        actions ? "controller has: #{actions.to_a.sort.join(", ")}" : "no such controller file")
+end
+puts "  #{targets.uniq.size} route targets checked across #{controller_actions.size} controllers"
+
+# -------------------------------------------------------- D. path helpers exist
+section "Path helpers used actually exist"
+named = routes_src.scan(/as:\s*:(\w+)/).flatten.to_set
+named << "root"
+# resource-style helpers Rails generates that we rely on
+used = Set.new
+(Dir.glob("app/views/**/*.erb") + Dir.glob("app/{controllers,helpers}/**/*.rb")).each do |file|
+  File.read(file, encoding: "UTF-8").scan(/\b(\w+)_path\b/) { |m| used << m.first }
+end
+# Methods we define ourselves that merely end in _path are not route helpers.
+locally_defined = Set.new
+Dir.glob("app/**/*.rb").each do |file|
+  File.read(file, encoding: "UTF-8").scan(/def\s+(\w+_path)\b/).flatten.each { |m| locally_defined << m.sub(/_path\z/, "") }
+end
+(used - locally_defined).each do |helper|
+  check("path helper #{helper}_path", named.include?(helper),
+        "not declared via as: in routes.rb")
+end
+puts "  #{used.size} distinct path helpers referenced; #{named.size} declared"
+
+# ------------------------------------------------------- E. templates for renders
+section "Templates exist for every render"
+missing = []
+Dir.glob("app/controllers/*_controller.rb").each do |file|
+  controller = File.basename(file, "_controller.rb")
+  body = File.read(file, encoding: "UTF-8")
+
+  body.scan(/render\s+:(\w+)/).flatten.each do |view|
+    path = "app/views/#{controller}/#{view}.html.erb"
+    missing << path unless File.exist?(path)
+  end
+  body.scan(/render\s+"([\w\/]+)"/).flatten.each do |view|
+    path = view.include?("/") ? "app/views/#{view}.html.erb" : "app/views/#{controller}/#{view}.html.erb"
+    missing << path unless File.exist?(path)
+  end
+end
+
+# Implicit renders: an action with no explicit render needs a template.
+{
+  "products" => %w[index show search],
+  "carts"    => %w[show],
+  "orders"   => %w[index new show],
+  "demo"     => %w[index]
+}.each do |controller, actions|
+  actions.each do |action|
+    path = "app/views/#{controller}/#{action}.html.erb"
+    missing << path unless File.exist?(path)
+  end
+end
+check("all referenced templates exist", missing.empty?, missing.uniq.join(", "))
+puts "  #{missing.empty? ? "no" : missing.uniq.size} missing templates"
+
+# Partials
+partials = Set.new
+Dir.glob("app/views/**/*.erb").each do |file|
+  File.read(file, encoding: "UTF-8").scan(/partial:\s*"([\w\/]+)"/).flatten.each { |p| partials << p }
+end
+partials.each do |partial|
+  dir, base = File.split(partial)
+  path = "app/views/#{dir}/_#{base}.html.erb"
+  check("partial #{partial}", File.exist?(path), "expected #{path}")
+end
+puts "  #{partials.size} partials referenced"
+
+# ------------------------------------------- F. model/seed attributes vs migrations
+section "Attributes match the migrations"
+columns = Hash.new { |h, k| h[k] = Set.new(%w[id created_at updated_at]) }
+Dir.glob("db/migrate/*.rb").each do |file|
+  src = File.read(file, encoding: "UTF-8")
+  table = src[/create_table :(\w+)/, 1]
+  next unless table
+
+  src.scan(/t\.(?:string|integer|text|boolean|datetime|decimal|float)\s+:(\w+)/).flatten.each { |c| columns[table] << c }
+  src.scan(/t\.references\s+:(\w+)/).flatten.each { |c| columns[table] << "#{c}_id" << c }
+end
+
+model_tables = {
+  "Category" => "categories", "Product" => "products", "Review" => "reviews",
+  "Order" => "orders", "OrderItem" => "order_items"
+}
+
+(Dir.glob("db/seeds.rb") + Dir.glob("test/**/*.rb")).each do |file|
+  src = File.read(file, encoding: "UTF-8")
+  model_tables.each do |model, table|
+    src.to_enum(:scan, /#{model}\.(?:create!|new|create)\(/m).each do
+      start = Regexp.last_match.end(0)
+      args = balanced_args(src, start)
+      next unless args
+
+      top_level_keys(args).each do |attr|
+        next if %w[category product order].include?(attr) # association names
+        check("#{model}.#{attr} in #{File.basename(file)}", columns[table].include?(attr),
+              "#{table} has: #{columns[table].to_a.sort.join(", ")}")
+      end
+    end
+  end
+end
+puts "  #{columns.keys.size} tables: #{columns.map { |t, c| "#{t}(#{c.size})" }.join(", ")}"
+
+# ------------------------------------------------------------------ G. structure
+section "Expected files present"
+%w[
+  Gemfile Rakefile config.ru config/application.rb config/boot.rb config/environment.rb
+  config/routes.rb config/database.yml config/appsignal.rb config/puma.rb
+  config/environments/development.rb config/environments/test.rb config/environments/production.rb
+  bin/rails bin/setup db/seeds.rb public/style.css
+  app/views/layouts/application.html.erb .github/workflows/ci.yml
+].each { |f| check("present #{f}", File.exist?(f)) }
+
+# ------------------------------------------------------------------------ report
+puts "\n" + ("=" * 60)
+if $failures.empty?
+  puts "PASS — #{$checks} checks, 0 failures"
+else
+  puts "FAIL — #{$checks} checks, #{$failures.size} failures:"
+  $failures.each { |f| puts "  ✗ #{f}" }
+end
+puts "=" * 60
+exit($failures.empty? ? 0 : 1)

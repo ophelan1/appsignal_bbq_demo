@@ -1,0 +1,17 @@
+{
+  "name": "Smokestack BBQ — AppSignal demo",
+  "image": "mcr.microsoft.com/devcontainers/ruby:3.3",
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": { "label": "Storefront", "onAutoForward": "openPreview" }
+  },
+  "postCreateCommand": "bin/setup",
+  "remoteEnv": {
+    "RAILS_ENV": "development"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["Shopify.ruby-lsp"]
+    }
+  }
+}

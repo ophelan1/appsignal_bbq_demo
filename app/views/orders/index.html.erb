@@ -1,0 +1,37 @@
+<% content_for :title, "Orders" %>
+
+<section class="wrap section">
+  <div class="section-head">
+    <h1>Orders</h1>
+    <p>Seeded history plus anything placed on this instance, newest first.</p>
+  </div>
+
+  <% if @orders.empty? %>
+    <div class="empty">
+      <p>No orders yet.</p>
+      <%= link_to "Go shopping", root_path, class: "btn btn-primary" %>
+    </div>
+  <% else %>
+    <table class="orders-table">
+      <thead>
+        <tr>
+          <th scope="col">Reference</th><th scope="col">Placed</th>
+          <th scope="col">Customer</th><th scope="col">Status</th>
+          <th scope="col">Items</th><th scope="col">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @orders.each do |order| %>
+          <tr>
+            <td><%= link_to order.reference, order_path(order.reference) %></td>
+            <td class="muted"><%= order.created_at.strftime("%-d %b %Y") %></td>
+            <td><%= order.customer_name %><br><span class="muted"><%= order.city %>, <%= order.country %></span></td>
+            <td><span class="status status-<%= order.status %>"><%= order.status %></span></td>
+            <td><%= order.item_count %></td>
+            <td><%= money(order.total_cents) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</section>

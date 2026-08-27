@@ -1,0 +1,11 @@
+<% content_for :title, "Memory churn" %>
+<section class="wrap section">
+  <nav class="crumbs"><%= link_to "Demos", demo_path %> <span>/</span> Memory churn</nav>
+  <div class="section-head"><h1>Allocated and discarded</h1></div>
+  <div class="demo-result">
+    <p>Built and threw away an array of 120,000 strings (<%= @allocated %> counted).</p>
+    <p class="muted">Run it a few times, then look at the allocation graph on the host metrics
+      screen.</p>
+  </div>
+  <p><%= link_to "Back to demos", demo_path, class: "btn btn-ghost" %></p>
+</section>
