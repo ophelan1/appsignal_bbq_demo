@@ -16,7 +16,6 @@ Appsignal.configure do |config|
   # does not spam the logs with "not active" warnings on every request.
   config.active = !ENV["APPSIGNAL_PUSH_API_KEY"].to_s.strip.empty?
 
-  config.environment = ENV["APPSIGNAL_APP_ENV"] || (defined?(Rails) ? Rails.env : "development")
 
   # Shows up in AppSignal as the deploy marker, so you can point at a specific
   # version during a demo.
@@ -28,7 +27,7 @@ Appsignal.configure do |config|
 
   # This is a demo store with fake customers, but the habit is worth modelling:
   # never ship session contents to your monitoring provider.
-  config.skip_session_data = true
+  config.send_session_data = false
 
   config.ignore_errors = []
 
